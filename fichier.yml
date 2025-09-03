@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: STD24063
+  description: This is a specification of STD24063
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+
+components:
+  schemas:
+    Characteristic:
+      type: object
+      properties:
+        max_speed:
+          type: number
+        max_fuel_capacity:
+          type: number
+      required:
+        - max_speed
+        - max_fuel_capacity
+
+    Car:
+      type: object
+      properties:
+        identifier:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        characteristics:
+          $ref: '#/components/schemas/Characteristic'
+      required:
+        - identifier
+        - brand
+        - model
+        - characteristics
+
+paths:
+  /ping:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Pong response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+
+  /cars:
+    post:
+      summary: Create a car
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+      responses:
+        '201':
+          description: Car created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+
+    get:
+      summary: Get all cars
+      responses:
+        '200':
+          description: List of cars
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+
+  /cars/{id}:
+    get:
+      summary: Get a car by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Car found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '404':
+          description: Car not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: Car with id 'abc123' not found.
